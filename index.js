@@ -1,5 +1,7 @@
+let board = document.getElementById("gameBoard");
+let gameGrid = document.getElementsByClassName("gameGrid");
 const gameboard = (function(){
-  const board = [["X", "X", "X"],["O", "", "O"],["O", "", ""]];
+  const board = [["", "", ""],["", "", ""],["", "", ""]];
   const getBoard = ()=> {
     return board;
   }
@@ -18,8 +20,8 @@ const gameboard = (function(){
       }
     }
   }
-  const placeMove = function(row, col, val) {
-    board[col][row] = val;
+  const placeMove = function(col, row, val) {
+    board[row][col] = val;
   }
   const clear = function() {
     for (let i = 0; i < board.length; i++) {
@@ -29,7 +31,15 @@ const gameboard = (function(){
       }
     }
   }
-  return {getBoard, placeMove, clear, getSquare}
+  const updateBoard = function() {
+    for (let i = 0; i<gameGrid.length; i++) {
+      if (this.getBoard()[Math.floor(i/3)][i%3] == player.playerInfo.marker) {
+        gameGrid[i].classList.add('player');
+        gameGrid[i].classList.remove('none');
+      }
+    }
+  }
+  return {getBoard, placeMove, clear, getSquare, updateBoard}
 })();
 
 const player = (function(){
@@ -117,8 +127,16 @@ const game = (function(){
   return {placeRandom, checkForWinner, checkVert, AIInfo}
 }());
 //console.log(gameboard.getBoard()[0].length)
-//game.placeRandom("O");
-//console.log(gameboard.getBoard());
-//game.AIInfo.marker
-console.log(game.checkForWinner());
 
+//game.AIInfo.marker
+//console.log(game.checkForWinner());
+
+//game.placeRandom("O");
+
+for(let i = 0; i < gameGrid.length; i++) {
+  gameGrid[i].addEventListener('click', function() {
+    gameboard.placeMove(i%3, Math.floor(i/3), player.playerInfo.marker)
+    gameboard.updateBoard()
+    console.log(gameboard.getBoard());
+  })
+}

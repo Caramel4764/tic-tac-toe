@@ -1,0 +1,42 @@
+:root {
+  --gridSize: 100px;
+  background-color: aliceblue;
+  font-family: Arial, Helvetica, sans-serif;
+}
+body {
+  margin: 0;
+}
+.gameGrid {
+  width:var(--gridSize);
+  height:var(--gridSize);
+}
+#gameboard {
+  display:grid;
+  grid-template-columns: repeat(3, var(--gridSize));
+  gap: 5px;
+}
+.none {
+  background: rgb(201, 201, 201);
+}
+.none:hover {
+  background: rgb(217, 217, 217);
+}
+.player {
+  background-color: #00ff91;
+}
+.computer {
+  background-color: #ff006e;
+}
+.center {
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  height: 100vh;
+  top:0;
+  width: 100vw;
+}
+.center-align {
+  display: flex;
+  justify-content: center;
+}
