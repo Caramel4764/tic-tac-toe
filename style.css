@@ -9,6 +9,17 @@ body {
 .gameGrid {
   width:var(--gridSize);
   height:var(--gridSize);
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--gridSize);
+}
+.visible {
+  opacity: 1;
+  transition: opacity 0.7s;
+}
+.hidden {
+  opacity: 0;
 }
 .gameOverMenu {
   visibility: hidden;

@@ -6,11 +6,19 @@ const winnerTxt = document.getElementById("winnerTxt");
 const gameboard = (function(){
   let state = {
     board: [["", "", ""],["", "", ""],["", "", ""]],
+    prevBoard: [["", "", ""],["", "", ""],["", "", ""]],
     isGameOver: false,
     winner: "Tie",
+    turn: "player",
   }
   const getBoard = ()=> {
     return state.board;
+  }
+  const getTurn = function() {
+    return state.turn;
+  }
+  const getPrevBoard = () =>{
+    return state.prevBoard;
   }
   const getIsGameOver = function () {
     return state.isGameOver;
@@ -32,14 +40,26 @@ const gameboard = (function(){
   const handleGameOver = function () {
     state.isGameOver = true;
     gameOverMenu.style.visibility = 'visible';
-    winnerTxt.textContent = state.winner;
-    state.winner="Tie";
+    if (state.winner == "Tie") {
+      winnerTxt.textContent = `${state.winner}`;
+    } else {
+      winnerTxt.textContent = `${state.winner} won!`;
+    }
+  }
+  function toggleTurn () {
+    if (state.turn=="player") {
+      state.turn = "computer";
+    } else {
+      state.turn = "player";
+    }
   }
   const placeMove = function(col, row, val) {
+    state.prevBoard = structuredClone(state.board);
     if (gameboard.getIsGameOver()==false) {
+      console.log({old:state.board})
       state.board[row][col] = val;
+      console.log({new:state.board})
       if (checkForWinner() != false) {
-        console.log(checkForWinner())
         state.winner=checkForWinner();
         this.handleGameOver();
       }
@@ -56,23 +76,49 @@ const gameboard = (function(){
       }
     }
     state.isGameOver = false;
-    console.log(getBoard())
     updateBoard();
     gameOverMenu.style.visibility='hidden';
+    state = {
+      board: [["", "", ""],["", "", ""],["", "", ""]],
+      prevBoard: [["", "", ""],["", "", ""],["", "", ""]],
+      isGameOver: false,
+      winner: "Tie",
+      turn: "player",
+    }
+  }
+  function animatePlaceMark(element, time) {
+      element.classList.add('hidden');
+      element.classList.remove('visible');
+        setTimeout(function() {
+          element.style.opacity = 1;
+          element.classList.add('visible');
+          element.classList.remove('hidden');
+          toggleTurn();
+        }, 100)
   }
   const updateBoard = function() {
     for (let i = 0; i<gameGrid.length; i++) {
       if (getBoard()[Math.floor(i/3)][i%3] == player.playerInfo.marker) {
         gameGrid[i].classList.add('player');
         gameGrid[i].classList.remove('none');
+        gameGrid[i].textContent = player.playerInfo.marker;
+        if (getBoard()[Math.floor(i/3)][i%3] != getPrevBoard()[Math.floor(i/3)][i%3]) {
+          animatePlaceMark(gameGrid[i]);
+        }
       } else if (getBoard()[Math.floor(i/3)][i%3] == game.getAIInfo().marker) {
-        gameGrid[i].classList.add('computer');
-        gameGrid[i].classList.remove('none');
+          gameGrid[i].classList.add('computer');
+          gameGrid[i].classList.remove('none');
+          gameGrid[i].textContent = game.getAIInfo().marker;
+          
+          if (getBoard()[Math.floor(i/3)][i%3] != getPrevBoard()[Math.floor(i/3)][i%3]) {
+            animatePlaceMark(gameGrid[i]);
+          }
       } else if ((getBoard()[Math.floor(i/3)][i%3] == "")){
         gameGrid[i].classList.remove('player');
         gameGrid[i].classList.remove('computer');
         gameGrid[i].classList.add('none');
         gameGrid[i].classList.add('gameGrid');
+        gameGrid[i].textContent = "";
       }
     }
   }
@@ -83,7 +129,6 @@ const gameboard = (function(){
         if (gameboard.getSquare(j, i) == marker) {
           counter++;
           if (counter >= 3) {
-            console.log({horizontal: true})
             return true;
           }
         }
@@ -98,7 +143,6 @@ const gameboard = (function(){
         if (gameboard.getSquare(i, j) == marker) {
           counter++;
           if (counter >= 3) {
-            console.log({vertical: true})
             return true;
           }
         }
@@ -111,9 +155,7 @@ const gameboard = (function(){
     for (let i = 0; i<gameboard.getBoard().length;i++) {
       if (gameboard.getSquare(i, i) == marker) {
         counter++;
-        console.log({marker: marker, count:counter})
         if (counter>2) {
-          console.log({diag: true})
           return true;
         }
       }
@@ -132,16 +174,14 @@ const gameboard = (function(){
   //checks if anyone has won. False if no one and a player or pc if there's winner
   function checkForWinner () {
     if (checkHori(game.getAIInfo().marker) || checkVert(game.getAIInfo().marker) || checkDiag(game.getAIInfo().marker)) {
-      console.log({ai: true})
       return "Computer";
     } else if (checkVert(player.playerInfo.marker) || checkHori(player.playerInfo.marker) || checkDiag(player.playerInfo.marker)) {
-      console.log({player: true})
       return "Player";
     } else {
       return false;
     }
   }
-  return {checkForWinner, getBoard, getIsGameOver, placeMove, clear, getSquare, updateBoard, handleGameOver, hasEmptySpace}
+  return {getTurn, checkForWinner, getPrevBoard, getBoard, getIsGameOver, placeMove, clear, getSquare, updateBoard, handleGameOver, hasEmptySpace}
 })();
 
 const player = (function(){
@@ -175,12 +215,18 @@ const game = (function(){
 restartBtn.addEventListener('click', function() {
   gameboard.clear();
 })
-
 for(let i = 0; i < gameGrid.length; i++) {
   gameGrid[i].addEventListener('click', function() {
-    gameboard.placeMove(i%3, Math.floor(i/3), player.playerInfo.marker)
-    game.placeRandom();
-    gameboard.updateBoard();
-    //console.log(gameboard.getBoard());
+    console.log(gameboard.getTurn())
+    if (gameboard.getTurn() == "player") {
+      if (gameGrid[i].textContent=="") {
+        gameboard.placeMove(i%3, Math.floor(i/3), player.playerInfo.marker);
+        gameboard.updateBoard();
+      }
+      game.placeRandom(); 
+      setTimeout(function() {
+        gameboard.updateBoard();
+      }, 600)
+    }
   })
 }
