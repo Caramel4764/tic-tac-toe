@@ -56,9 +56,7 @@ const gameboard = (function(){
   const placeMove = function(col, row, val) {
     state.prevBoard = structuredClone(state.board);
     if (gameboard.getIsGameOver()==false) {
-      console.log({old:state.board})
       state.board[row][col] = val;
-      console.log({new:state.board})
       if (checkForWinner() != false) {
         state.winner=checkForWinner();
         this.handleGameOver();
@@ -69,14 +67,7 @@ const gameboard = (function(){
     }
   }
   const clear = function() {
-    for (let i = 0; i < state.board.length; i++) {
-      for (let j = 0; j < state.board[i].length; j++) {
-        //row/col
-        state.board[i][j] = "";
-      }
-    }
-    state.isGameOver = false;
-    updateBoard();
+    clearAnim();
     gameOverMenu.style.visibility='hidden';
     state = {
       board: [["", "", ""],["", "", ""],["", "", ""]],
@@ -85,12 +76,19 @@ const gameboard = (function(){
       winner: "Tie",
       turn: "player",
     }
+    updateBoard();
+
   }
-  function animatePlaceMark(element, time) {
+  function clearAnim() {
+    for (let i = 0; i < gameGrid.length; i++) {
+      gameGrid[i].classList.remove('hidden');
+      gameGrid[i].classList.remove('visible');
+    }
+  }
+  function animatePlaceMark(element) {
       element.classList.add('hidden');
       element.classList.remove('visible');
         setTimeout(function() {
-          element.style.opacity = 1;
           element.classList.add('visible');
           element.classList.remove('hidden');
           toggleTurn();
@@ -217,16 +215,17 @@ restartBtn.addEventListener('click', function() {
 })
 for(let i = 0; i < gameGrid.length; i++) {
   gameGrid[i].addEventListener('click', function() {
-    console.log(gameboard.getTurn())
     if (gameboard.getTurn() == "player") {
       if (gameGrid[i].textContent=="") {
         gameboard.placeMove(i%3, Math.floor(i/3), player.playerInfo.marker);
         gameboard.updateBoard();
-      }
-      game.placeRandom(); 
-      setTimeout(function() {
+        
+        game.placeRandom(); 
+        setTimeout(function() {
         gameboard.updateBoard();
-      }, 600)
+      }, 200)
+      }
+      
     }
   })
 }

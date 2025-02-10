@@ -1,10 +1,19 @@
 :root {
   --gridSize: 100px;
-  background-color: aliceblue;
+  background-color: rgb(158, 210, 255);
   font-family: Arial, Helvetica, sans-serif;
+  margin: 0px;
+}
+p, h3, h2, h1 {
+  margin:10px;
+  padding:0;
 }
 body {
   margin: 0;
+  -webkit-user-select: none; 
+  -moz-user-select: none; 
+  -ms-user-select: none;
+  user-select: none;
 }
 .gameGrid {
   width:var(--gridSize);
@@ -18,11 +27,26 @@ body {
   opacity: 1;
   transition: opacity 0.7s;
 }
+.gameOverMenu {
+  text-align: center;
+}
 .hidden {
   opacity: 0;
 }
 .gameOverMenu {
   visibility: hidden;
+  background-color: rgba(255, 255, 255, 0.505);
+  padding: 20px 30px;
+  border-radius: 15px;
+  position:absolute;
+  top: 10px;
+}
+#restartBtn {
+  padding: 10px;
+  font-size: 20px;
+  border: none;
+  background-color: rgb(245, 155, 46);
+  border-radius: 5px;
 }
 #gameboard {
   display:grid;
@@ -30,10 +54,12 @@ body {
   gap: 5px;
 }
 .none {
-  background: rgb(201, 201, 201);
+  background-color: rgb(206, 232, 255);
+
 }
 .none:hover {
-  background: rgb(217, 217, 217);
+  background-color: rgb(216, 237, 255);
+
 }
 .player {
   background-color: #00ff91;
