@@ -1,9 +1,15 @@
-let board = document.getElementById("gameBoard");
-let gameGrid = document.getElementsByClassName("gameGrid");
+const board = document.getElementById("gameBoard");
+const gameGrid = document.getElementsByClassName("gameGrid");
+const restartBtn = document.getElementById('restartBtn');
+const gameOverMenu = document.getElementsByClassName('gameOverMenu')[0];
 const gameboard = (function(){
   const board = [["", "", ""],["", "", ""],["", "", ""]];
+  let isGameOver = false;
   const getBoard = ()=> {
     return board;
+  }
+  const getIsGameOver = function () {
+    return isGameOver;
   }
   const getSquare = function(col, row) {
     return board[row][col];
@@ -14,14 +20,22 @@ const gameboard = (function(){
         //row/col
         if (board[i][j] == "") {
           return true;
-        } else {
-          return false;
         }
       }
     }
+    return false;
+  }
+  const handleGameOver = function () {
+    //alert('game over');
+    isGameOver = true;
+    gameOverMenu.style.visibility = 'visible';
+    console.log({"gameover": isGameOver})
   }
   const placeMove = function(col, row, val) {
     board[row][col] = val;
+    if (!this.hasEmptySpace()) {
+      this.handleGameOver();
+    }
   }
   const clear = function() {
     for (let i = 0; i < board.length; i++) {
@@ -30,16 +44,29 @@ const gameboard = (function(){
         board[i][j] = "";
       }
     }
+    isGameOver = false;
+    console.log(getBoard())
+    updateBoard();
+    gameOverMenu.style.visibility='hidden';
   }
   const updateBoard = function() {
     for (let i = 0; i<gameGrid.length; i++) {
-      if (this.getBoard()[Math.floor(i/3)][i%3] == player.playerInfo.marker) {
+      if (getBoard()[Math.floor(i/3)][i%3] == player.playerInfo.marker) {
         gameGrid[i].classList.add('player');
         gameGrid[i].classList.remove('none');
+      } else if (getBoard()[Math.floor(i/3)][i%3] == game.AIInfo.marker) {
+        gameGrid[i].classList.add('computer');
+        gameGrid[i].classList.remove('none');
+      } else if ((getBoard()[Math.floor(i/3)][i%3] == "")){
+        gameGrid[i].classList.remove('player');
+        gameGrid[i].classList.remove('computer');
+        gameGrid[i].classList.add('none');
+        gameGrid[i].classList.add('gameGrid');
       }
+      console.log(getBoard());
     }
   }
-  return {getBoard, placeMove, clear, getSquare, updateBoard}
+  return {getBoard, getIsGameOver, placeMove, clear, getSquare, updateBoard, handleGameOver, hasEmptySpace}
 })();
 
 const player = (function(){
@@ -55,12 +82,13 @@ const game = (function(){
     wins: 0,
     marker: "O",
   }
-  function placeRandom(marker) {
-    for(;;) {
+  function placeRandom() {
+    console.log(gameboard.getIsGameOver())
+    while(gameboard.getIsGameOver() == false) {
       let ranRow = Math.floor(Math.random()*3);
       let ranCol = Math.floor(Math.random()*3);
       if (gameboard.getSquare(ranCol, ranRow) == "") {
-        gameboard.placeMove(ranCol, ranRow, marker);
+        gameboard.placeMove(ranCol, ranRow, this.AIInfo.marker);
         return;
       }
     }
@@ -126,17 +154,15 @@ const game = (function(){
   }
   return {placeRandom, checkForWinner, checkVert, AIInfo}
 }());
-//console.log(gameboard.getBoard()[0].length)
-
-//game.AIInfo.marker
-//console.log(game.checkForWinner());
-
-//game.placeRandom("O");
+restartBtn.addEventListener('click', function() {
+  gameboard.clear();
+})
 
 for(let i = 0; i < gameGrid.length; i++) {
   gameGrid[i].addEventListener('click', function() {
     gameboard.placeMove(i%3, Math.floor(i/3), player.playerInfo.marker)
+    game.placeRandom();
     gameboard.updateBoard()
-    console.log(gameboard.getBoard());
+    //console.log(gameboard.getBoard());
   })
 }

@@ -10,6 +10,9 @@ body {
   width:var(--gridSize);
   height:var(--gridSize);
 }
+.gameOverMenu {
+  visibility: hidden;
+}
 #gameboard {
   display:grid;
   grid-template-columns: repeat(3, var(--gridSize));
@@ -39,4 +42,8 @@ body {
 .center-align {
   display: flex;
   justify-content: center;
+}
+.gameOverMenu {
+  position: relative;
+  z-index: 2;
 }
